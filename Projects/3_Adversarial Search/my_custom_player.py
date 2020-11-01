@@ -1,6 +1,6 @@
 from sample_players import DataPlayer
 import numpy as np
-import copy, random
+import random
 
 # This Monte-Carlo Tree Search was implemented using the following article as a reference:
 # https://medium.com/@quasimik/monte-carlo-tree-search-applied-to-letterpress-34f41c86e238
@@ -46,7 +46,7 @@ class CustomPlayer(DataPlayer):
         # EXAMPLE: choose a random move without any search--this function MUST
         #          call self.queue.put(ACTION) at least once before time expires
         #          (the timer is automatically managed for you)
-        if state.ply_count < 2:
+        if state.terminal_test() or state.ply_count < 2:
             self.queue.put(random.choice(state.actions()))
         else:
             root_node = MCTSNode(state)
@@ -82,7 +82,7 @@ def expansion(node):
 
 # The simulation step randomly chooses available moves until the game is over
 def simulation(state):
-    player_copy = copy.deepcopy(state.player())
+    player_copy = state.player()
     while not state.terminal_test():
         action = random.choice(state.actions())
         state = state.result(action)
@@ -90,6 +90,7 @@ def simulation(state):
         return -1
     else:
         return 1
+
 
 # The backpropagation step recursively updates all the statistics and rewards the "good"
 # nodes/actions
